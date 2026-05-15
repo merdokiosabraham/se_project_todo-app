@@ -1,12 +1,12 @@
 export class Todo {
-  constructor(data, selector) {
+  constructor(data, templateSelector) {
     this._data = data;
-    this._selector = selector;
+    this._templateSelector = templateSelector;
   }
 
   _getTemplate() {
     return document
-      .querySelector(this._selector)
+      .querySelector(this._templateSelector)
       .content.querySelector(".todo")
       .cloneNode(true);
   }
@@ -25,12 +25,26 @@ export class Todo {
 
   _setEventListeners() {
     const todoDeleteBtn = this._element.querySelector(".todo__delete-btn");
+    const todoCheckbox = this._element.querySelector(".todo__completed");
+
     todoDeleteBtn.addEventListener("click", () => {
+      if (this._handleDelete) {
+        this._handleDelete(this._data.completed);
+      }
       this._element.remove();
+    });
+
+    todoCheckbox.addEventListener("change", () => {
+      this._data.completed = todoCheckbox.checked;
+      if (this._handleCheck) {
+        this._handleCheck(this._data.completed);
+      }
     });
   }
 
-  getView() {
+  getView({ handleDelete, handleCheck } = {}) {
+    this._handleDelete = handleDelete;
+    this._handleCheck = handleCheck;
     this._element = this._getTemplate();
 
     const todoNameEl = this._element.querySelector(".todo__name");
